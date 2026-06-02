@@ -129,17 +129,17 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Lab as Lab 1 caller
-    participant WS as WorkspaceState
-    participant Agent as PolicyAgent
-    participant WR as WorkspaceResponseObject
+    participant Lab as "Lab 1 caller"
+    participant WS as "WorkspaceState"
+    participant Agent as "PolicyAgent"
+    participant WR as "WorkspaceResponseObject"
 
     Lab->>WS: WorkspaceState(bgd_surrogate, fqdn, task_content)
     Note over WS: blake3_pair_hash computed
     WS->>Agent: task_content + skill_id
     Agent->>Agent: answer_query(policy PDF + question)
     Agent->>WS: respond(result, status, source_agent)
-    WS->>WR: inherit identity; correlation_id = request pair_hash
+    WS->>WR: inherit identity&#59; correlation_id = request pair_hash
     WR-->>Lab: WorkspaceResponseObject (is_terminal)
     Note over Lab,WR: verify_correlation(req, resp) == True
 ```
