@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 1 — Run Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root{
+    --ink:#1E1B4B; --violet:#7C3AED; --deep:#4C1D95; --ice:#EDE9FE;
+    --accent:#10B981; --amber:#F59E0B; --codebg:#0F0D24; --paper:#FBFAFF;
+    --mute:#6B6488;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Fraunces',Georgia,serif; background:var(--paper); color:var(--ink);
+    line-height:1.6; padding:0 0 6rem;
+  }
+  .band{
+    background:linear-gradient(135deg,var(--deep),var(--violet));
+    color:#fff; padding:3.5rem 2rem 3rem; position:relative; overflow:hidden;
+  }
+  .band::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(circle at 80% 20%, rgba(16,185,129,.18), transparent 40%);
+  }
+  .wrap{max-width:880px; margin:0 auto; position:relative; z-index:1}
+  .kicker{font-family:'JetBrains Mono',monospace; font-size:.8rem; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--ice); opacity:.85}
+  h1{font-size:2.9rem; font-weight:700; line-height:1.05; margin:.6rem 0 .8rem}
+  .sub{font-size:1.15rem; opacity:.92; max-width:36em; font-weight:400}
+  main{max-width:880px; margin:0 auto; padding:0 2rem}
+  h2{font-size:1.7rem; font-weight:700; color:var(--deep); margin:2.8rem 0 1rem;
+    padding-bottom:.4rem; border-bottom:2px solid var(--ice)}
+  h3{font-size:1.15rem; font-weight:600; color:var(--ink); margin:1.6rem 0 .5rem}
+  p{margin:.6rem 0; color:#2b2752}
+  .lede{font-size:1.05rem}
+  .step{display:flex; gap:1rem; align-items:flex-start; margin:1.1rem 0}
+  .num{flex:0 0 1.9rem; height:1.9rem; border-radius:50%; background:var(--violet);
+    color:#fff; font-family:'JetBrains Mono',monospace; font-weight:600; font-size:.9rem;
+    display:flex; align-items:center; justify-content:center; margin-top:.1rem}
+  pre{background:var(--codebg); color:var(--ice); border-radius:10px;
+    padding:1.1rem 1.2rem; overflow-x:auto; font-family:'JetBrains Mono',monospace;
+    font-size:.82rem; line-height:1.55; margin:.7rem 0; position:relative;
+    box-shadow:0 8px 28px rgba(76,29,149,.16)}
+  pre .c{color:#8b7fc7}   /* comment */
+  pre .p{color:#c4b5fd}   /* prompt/path */
+  pre .g{color:#34d399}   /* good/output */
+  .copy{position:absolute; top:.55rem; right:.6rem; background:rgba(124,58,237,.25);
+    border:1px solid rgba(196,181,253,.3); color:var(--ice); font-family:'JetBrains Mono',monospace;
+    font-size:.68rem; padding:.2rem .55rem; border-radius:6px; cursor:pointer}
+  .copy:hover{background:rgba(124,58,237,.5)}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:1.4rem; margin-top:1rem}
+  .card{border:1px solid var(--ice); border-radius:12px; padding:1.3rem 1.4rem; background:#fff}
+  .card.a{border-top:4px solid var(--violet)}
+  .card.b{border-top:4px solid var(--accent)}
+  .card h3{margin-top:0}
+  .pill{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.72rem;
+    padding:.15rem .5rem; border-radius:5px; background:var(--ice); color:var(--deep); font-weight:600}
+  .note{background:#FFFBEB; border-left:4px solid var(--amber); padding:.9rem 1.1rem;
+    border-radius:0 8px 8px 0; margin:1.2rem 0; font-size:.95rem}
+  .note b{color:#92660b}
+  footer{max-width:880px; margin:3rem auto 0; padding:1.4rem 2rem 0; border-top:1px solid var(--ice);
+    color:var(--mute); font-size:.82rem; font-family:'JetBrains Mono',monospace}
+  @media(max-width:640px){.two{grid-template-columns:1fr} h1{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<div class="band"><div class="wrap">
+  <div class="kicker">Lab 1 · A2A Walkthrough · Marimo Transformation</div>
+  <h1>Running the QA Agent</h1>
+  <p class="sub">Two ways to run Lab 1 against the <code>a2a_labs</code> foundation: a quick Read–Eval–Print Loop (REPL) to see the objects work, or the full Marimo notebook. Pick either; both use the same governed foundation.</p>
+</div></div>
+
+<main>
+  <h2>Prerequisites</h2>
+  <p class="lede">From the project root, with the foundation on the path. The package lives under <span class="pill">src/a2a_labs</span>.</p>
+  <div class="step"><div class="num">1</div><div>
+    <h3>Install dependencies (uv)</h3>
+    <pre><button class="copy">copy</button><span class="c"># from 02-marimo-transformation/</span>
+uv sync
+<span class="c"># or, minimal for the REPL demo:</span>
+uv pip install pydantic pydantic-settings blake3 litellm</pre>
+  </div></div>
+  <div class="step"><div class="num">2</div><div>
+    <h3>Set your model key</h3>
+    <pre><button class="copy">copy</button><span class="c"># .env in the project root</span>
+GEMINI_API_KEY=your-key-here
+<span class="c"># PROVIDER=gemini is the default; PROVIDER=vertex_ai also supported</span></pre>
+  </div></div>
+
+  <h2>Two ways to run</h2>
+  <div class="two">
+    <div class="card a">
+      <h3>A · The REPL</h3>
+      <p>See the foundation objects directly — fastest way to watch the adaptations work.</p>
+      <span class="pill">~30 seconds</span>
+    </div>
+    <div class="card b">
+      <h3>B · The Marimo notebook</h3>
+      <p>The full Lab 1 walkthrough as an interactive, reactive notebook.</p>
+      <span class="pill">full lab</span>
+    </div>
+  </div>
+
+  <h2>A · Run the REPL</h2>
+  <p>This exercises the model selection (registry + WORM cascade), the settings toggle, and the request/response provenance — no network needed for the object demo.</p>
+  <pre><button class="copy">copy</button><span class="p">$ PYTHONPATH=src python</span>
+<span class="c"># --- model selection through the governed cascade ---</span>
+&gt;&gt;&gt; from a2a_labs import MODELS, ModelMessage
+&gt;&gt;&gt; class Pick:
+...     @MODELS.guard
+...     def select(self, vendor, model): return ModelMessage(vendor=vendor, model=model)
+&gt;&gt;&gt; m = Pick().select("Anthropic", "claude-opus-4-7")
+&gt;&gt;&gt; m.fabric_id, m.litellm
+<span class="g">('Anthropic|claude-opus-4-7', 'anthropic/claude-opus-4-7')</span>
+
+<span class="c"># --- the wrong pair cannot be built (cascade rejects at the boundary) ---</span>
+&gt;&gt;&gt; Pick().select("Anthropic", "openai/gpt-5")
+<span class="g">ValueError: 'openai/gpt-5' is not a Anthropic model. ...</span>
+
+<span class="c"># --- request -&gt; response provenance, BLAKE3-correlated ---</span>
+&gt;&gt;&gt; from a2a_labs import WorkspaceState, ResponseStatus
+&gt;&gt;&gt; from a2a_labs.a2a_bridge import verify_correlation
+&gt;&gt;&gt; req = WorkspaceState(bgd_surrogate="BGD-1", fqdn="policy.aces.local",
+...                     task_content="How much for therapy?")
+&gt;&gt;&gt; resp = req.respond(result="In-network: $25 copay.", status=ResponseStatus.OK)
+&gt;&gt;&gt; verify_correlation(req, resp)
+<span class="g">True</span>
+
+<span class="c"># --- the settings toggle: one env var moves every agent ---</span>
+&gt;&gt;&gt; from a2a_labs import Settings
+&gt;&gt;&gt; Settings(gemini_api_key="x").litellm_model(m.model if False else __import__("a2a_labs").VendorModel.GEMINI_PRO)
+<span class="g">'gemini/gemini-3.1-pro-preview'</span></pre>
+  <div class="note"><b>Note.</b> The model-call cell (LiteLLM to Gemini) needs your key and network. The object cells above run offline — they demonstrate the governance layer, which is the point of Lab 1's refactor.</div>
+
+  <h2>B · Run in Marimo</h2>
+  <p>Marimo is reactive: change a cell and everything downstream re-runs. The notebook is the full lesson, not just the objects.</p>
+  <div class="step"><div class="num">1</div><div>
+    <h3>Launch the notebook</h3>
+    <pre><button class="copy">copy</button><span class="c"># edit mode (recommended for the lab)</span>
+uv run marimo edit marimo/lab1_basic_qa.py
+<span class="c"># or read-only app mode</span>
+uv run marimo run marimo/lab1_basic_qa.py</pre>
+  </div></div>
+  <div class="step"><div class="num">2</div><div>
+    <h3>Work through the cells</h3>
+    <p>The notebook imports the same <code>a2a_labs</code> foundation, builds the <code>PolicyAgent</code>, and answers a coverage question against the policy PDF. Each cell is annotated.</p>
+  </div></div>
+  <div class="note"><b>Validate without launching:</b> <code>uv run marimo check marimo/lab1_basic_qa.py</code> confirms the notebook is structurally sound — useful in continuous integration before a live run.</div>
+
+  <h2>What you just ran</h2>
+  <p>Both paths sit on the same foundation: closed-set Enumerations, a Pydantic Version 2 settings boundary, a model registry derived from <code>fabric -L</code>, the Write Once Reuse Many (WORM) cascade that validates a (vendor, model) pair before it can be constructed, and a request/response envelope correlated by BLAKE3 hash. Lab 2 takes these same objects onto a live Agent-to-Agent server.</p>
+</main>
+
+<footer>
+  © Mind Over Metadata LLC · CSCI 381 — AI Tools for the Practitioner · Lab 1 run guide
+</footer>
+
+<script>
+  document.querySelectorAll('.copy').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const pre=btn.parentElement.cloneNode(true);
+      pre.querySelector('.copy')?.remove();
+      navigator.clipboard.writeText(pre.textContent.trim()).then(()=>{
+        const t=btn.textContent; btn.textContent='copied'; setTimeout(()=>btn.textContent=t,1200);
+      });
+    });
+  });
+</script>
+</body>
+</html>

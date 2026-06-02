@@ -1,140 +1,67 @@
-# Intro to A2A Protocol
+# A2AWalkthrough
 
-1. Basic Question Answering Agent about Insurance Policies with No Agent Framework
-2. [Insurance Policy Agent] Turn QA Agent into A2A Agent Server with A2A SDK (No Framework to show how the SDK works.)
-3. Basic A2A Client with A2A SDK to show communication (No Framework to show how SDK works)
-4. [Health Research Agent] ADK Agent using Gemini with Google Search tool to answer Health-based Questions. Using [ADK A2A exposing](https://google.github.io/adk-docs/a2a/quickstart-exposing/).
-5. [Sequential Agent] ADK `SequentialAgent` connecting to Policy Agent and Health Agent in sequence. Using [ADK A2A consuming](https://google.github.io/adk-docs/a2a/quickstart-consuming/).
-6. [Healthcare Provider Agent] A2A Agent calling an MCP Server, built with LangChain/LangGraph.
-    - Uses [`langgraph-a2a-server`](https://github.com/5enxia/langgraph-a2a-server)
-7. A2A Client with [Microsoft Agent Framework built-in Client](https://learn.microsoft.com/en-us/agent-framework/user-guide/agents/agent-types/a2a-agent?pivots=programming-language-python)
-8. [Healthcare Concierge Agent] Full General Healthcare Agent built with [BeeAI Requirements Agent](https://framework.beeai.dev/experimental/requirement-agent) to call all of the A2A Agents in an Agentic way.
-    - Using [BeeAI Built-in A2A Support](https://framework.beeai.dev/integrations/a2a)
+A teaching-oriented evolution of the Agent-to-Agent (A2A) Walkthrough, structured
+in three sections that trace a deliberate path: take a working demo, transform it
+into a governed standards-layer foundation, and (later) extend it to a distributed
+deployment that stays Technical Committee 56 (TC56)- and A2A-compliant.
 
-## Architecture Diagram
+Maintained by Peter Heller, Mind Over Metadata LLC, for CSCI 381 — Artificial
+Intelligence (AI) Tools for the Practitioner, City University of New York (CUNY)
+Queens College.
 
-```mermaid
-graph LR
-    %% User / Client Layer
-    User([User / A2A Client])
-    
-    %% Main Orchestrator Layer (Lesson 8)
-    subgraph OrchestratorLayer [Router/Requirement Agent]
-        Concierge["<b>Healthcare Concierge Agent</b><br/>(BeeAI Framework)<br/><code>Port: 9996</code>"]
-    end
+## The three sections
 
-    subgraph SubAgents [A2A Agent Servers]
-        direction TB
+### 1. A2A Original (`01-a2a-original/`)
+The upstream fork: eight Jupyter labs, agent server files, and helpers exactly as
+they teach the DeepLearning.AI A2A course. This is the untouched baseline — the
+demo that earns the idea. Nothing here is modified; it is the "before" against
+which the transformation is measured.
 
-        PolicyAgent["<b>Policy Agent</b><br/>(Gemini with A2A SDK)<br/><code>Port: 9999</code>"]
-        ResearchAgent["<b>Research Agent</b><br/>(Google ADK)<br/><code>Port: 9998</code>"]
+### 2. Marimo Transformation (`02-marimo-transformation/`)
+The active work: a shared standards-layer foundation package (`a2a_labs`) plus
+Marimo notebooks that replace the Jupyter labs, and the teaching decks that
+explain the evolution. This is where the demo becomes a governed system —
+Enumerations (Enums) replacing free-form strings, a Pydantic Version 2 (V2)
+settings boundary, the Write Once Reuse Many (WORM) Enum-keyed cascade, and a
+model registry derived from real `fabric -L` output. See its README for detail.
 
-        ProviderAgent["<b>Provider Agent</b><br/>(LangGraph + LangChain)<br/><code>Port: 9997</code>"]
-    end
+### 3. Three Tier Architecture (`03-three-tier-architecture/`) — PARKED
+A distributed deployment (stateless ingress, distributed compute mesh, shared
+state plus upstream providers). **This section is parked.** It will be migrated
+to be TC56- and A2A-compliant **once the Marimo Transformation is complete** —
+not before. The tiers consume the conformance surface that Section 2 builds, so
+that surface must be finished and validated first. See its README for the parking
+decision, rationale, and the conditions under which it un-parks.
 
-    %% Data & Tools Layer
-    subgraph DataLayer [Data Sources & Tools]
-        PDF["Policy PDF"]
-        Google[Google Search Tool]
-        MCPServer["FastMCP Server<br/>(<code>doctors.json</code>)"]
-    end
-    
-    Label_UA["Sends Query - A2A"]
-    Label_CP["A2A"]
-    Label_CR["A2A"]
-    Label_CProv["A2A"]
-    Label_MCP["MCP (stdio)"]
+## Why this order
 
-    %% -- CONNECTIONS --
-    
-    User --- Label_UA --> Concierge
+The demo proves one path works. The Marimo Transformation makes N paths safe —
+every constraint defined once and inherited, so the marginal cost of the next
+agent is flat. Only once that governed foundation is complete does a distributed
+tier earn its place, and even then it must inherit the same A2A and TC56
+compliance the foundation establishes. Build the contract before the cluster.
 
-    Concierge --- Label_CP --> PolicyAgent
-    Concierge --- Label_CR --> ResearchAgent
-    Concierge --- Label_CProv --> ProviderAgent
-    
-    PolicyAgent -- "Reads" --> PDF
-    ResearchAgent -- "Calls" --> Google
-    
-    ProviderAgent --- Label_MCP --> MCPServer
+## Layout
 
-    classDef orchestrator fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef agent fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;
-    classDef tool fill:#fff3e0,stroke:#ef6c00,stroke-width:1px,stroke-dasharray: 5 5;
-    
-    classDef protocolLabel fill:#ffffff,stroke:none,color:#000;
-    
-    class Concierge orchestrator;
-    class PolicyAgent,ResearchAgent,ProviderAgent agent;
-    class PDF,Google,MCPServer tool;
-    
-    class Label_UA,Label_CP,Label_CR,Label_CProv,Label_MCP protocolLabel;
+```
+A2AWalkthrough/
+├── README.md                      (this file)
+├── 01-a2a-original/               upstream labs, agents, helpers (baseline)
+├── 02-marimo-transformation/
+│   ├── README.md
+│   ├── src/a2a_labs/              the standards-layer foundation package
+│   ├── marimo/                    Marimo notebooks (replace the Jupyter labs)
+│   ├── docs/                      architecture, standards, compliance notes
+│   └── slides/                    teaching decks
+└── 03-three-tier-architecture/    PARKED
+    ├── README.md                  parking decision + migration conditions
+    ├── docs/                      design notes (no implementation yet)
+    └── slides/
 ```
 
-## How to Run
+## Governance
 
-Follow these steps to set up your environment and run the example agents. Each numbered module (`1. ...`, `2. ...`, etc.) is designed to be run in sequence.
-
-### 1. Initial Setup
-
-Before running the examples, complete the following setup steps:
-
-1. **Create a [Gemini API Key](https://ai.google.dev/gemini-api/docs/api-key) or [configure your environment for Vertex AI](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/quickstart?usertype=adc).** If you choose to use Vertex AI, make sure to uncomment the corresponding code in the notebooks and Python files.
-
-2. **Configure Environment Variables:**
-    - In the project root, make a copy of `example.env` and rename it to `.env`.
-
-    ```sh
-    cp example.env .env
-    ```
-
-    - Replace `"YOUR_GEMINI_API_KEY"` with your actual API Key.
-
-3. **Install Dependencies:**
-    - **Locally:** If you have `uv` installed, run:
-
-      ```sh
-      uv sync
-      ```
-
-    - **Notebooks / Google Colab:** If running in a notebook environment, you can install the dependencies by running the following in a cell (or in the terminal):
-
-      ```python
-      %pip install .
-      ```
-
-## Running the Agents
-
-You can run each agent server in a separate terminal using `uv run`. Ensure you are in the project root.
-
-- **Policy Agent (Lesson 2):**
-
-  ```sh
-  uv run a2a_policy_agent.py
-  ```
-
-- **Research Agent (Lesson 4):**
-
-  ```sh
-  uv run a2a_research_agent.py
-  ```
-
-- **Provider Agent (Lesson 6):**
-
-  ```sh
-  uv run a2a_provider_agent.py
-  ```
-
-- **Healthcare Concierge Agent (Lesson 8):**
-
-  ```sh
-  uv run a2a_healthcare_agent.py
-  ```
-
-To interact with these A2A agent servers, you can run the A2A clients defined in the provided notebooks or create Python files defining A2A clients to run in a terminal. For example, run:
-
-```sh
-uv run a2a_healthcare_client.py
-```
-
-to interact with the Healthcare Concierge Agent.
+WSL is the authoritative git interface. Every commit is pushed to both remotes
+(GitHub `QCadjunct/A2AWalkthrough` and the Synology mirror) in the same session.
+Architectural decisions, once made, are treated as Write Once Reuse Many: they
+do not silently reverse. The parking of Section 3 is one such decision.
