@@ -32,8 +32,13 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
 # An agent is any callable that turns a prompt string into an answer string.
 AgentCallable = Callable[[str], str]
 
+try:  # the a2a-sdk is only installed with the [server] extra
+    from a2a.server.agent_execution import AgentExecutor as _ExecutorBase
+except ImportError:  # core install: no SDK, executor stays importable
+    _ExecutorBase = object
 
-class GovernedExecutor:
+
+class GovernedExecutor(_ExecutorBase):
     """Bridge an A2A request to an agent, emitting a governed response.
 
     Construct with the role (an ``AgentRole`` Enum member) and the agent's answer
