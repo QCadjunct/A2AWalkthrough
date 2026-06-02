@@ -28,6 +28,9 @@ from enum import IntEnum, StrEnum, unique, verify, UNIQUE
 # Single source for the default bind host — referenced, never re-typed inline.
 DEFAULT_HOST = "localhost"
 
+# Single source for the agent domain suffix for request fully qualified names.
+AGENT_DOMAIN = "agents.local"
+
 
 @verify(UNIQUE)
 class AgentPort(IntEnum):
@@ -40,6 +43,19 @@ class AgentPort(IntEnum):
     RESEARCH = 9998
     PROVIDER = 9997
     HEALTHCARE = 9996
+
+
+@unique
+class OverrideDefault(IntEnum):
+    """The runtime override gate for a tool invocation.
+
+    ``FALSE`` (the default) uses the tool's discovered default triplet;
+    ``TRUE`` uses the tool's registered override triplet. An IntEnum, not a raw
+    bool, so the gate is a closed, named value like every other governed choice.
+    """
+
+    FALSE = 0
+    TRUE = 1
 
 
 @unique
@@ -63,6 +79,21 @@ class AgentRole(StrEnum):
     def default_url(self, host: str = DEFAULT_HOST) -> str:
         """Compose this role's base URL. The role builds it, not the caller."""
         return f"http://{host}:{int(self.port)}/"
+
+    @property
+    def request_surrogate(self) -> str:
+        """A stable surrogate id for requests originating at this role.
+
+        Owned by the role so no caller hand-types a literal like 'BGD-POLICY'.
+        The name is intentionally plain — this is request identity, not data
+        governance.
+        """
+        return f"req-{self.value}"
+
+    @property
+    def request_fqdn(self) -> str:
+        """The fully qualified name this role answers under (host + domain)."""
+        return f"{self.value}.{AGENT_DOMAIN}"
 
 
 @unique

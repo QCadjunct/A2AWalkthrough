@@ -12,7 +12,6 @@ from __future__ import annotations
 import warnings
 from functools import lru_cache
 
-import nest_asyncio
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -94,6 +93,7 @@ def setup_env() -> Settings:
     notebook event loop), silences noisy warnings, and returns the validated
     Settings object so callers can use it directly.
     """
+    import nest_asyncio  # lazy: only needed when running async code
     nest_asyncio.apply()
     warnings.filterwarnings("ignore", category=UserWarning)
     warnings.filterwarnings("ignore", category=FutureWarning)

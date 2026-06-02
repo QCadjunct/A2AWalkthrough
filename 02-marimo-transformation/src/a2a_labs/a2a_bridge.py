@@ -28,9 +28,10 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from a2a_labs.enums import AgentRole
+from a2a_labs.fqsn import FQSN
 from a2a_labs.workspace import (
     ResponseStatus,
     WorkspaceResponseObject,
@@ -45,27 +46,39 @@ if TYPE_CHECKING:
 # FQSN registry — the governed skill catalog
 # ===========================================================================
 class SkillSpec(BaseModel):
-    """One Fully Qualified Skill Name (FQSN) registry entry.
+    """One Fully Qualified Skills Name (FQSN) registry entry.
 
     Upstream, an AgentSkill is assembled inline per agent with free-form id,
-    name, tags, and examples. Here a skill is a registry record with a fully
-    qualified id, so the SAME skill definition can be referenced by an agent's
-    card, by a WorkspaceState.skill_id request, and by the orchestrator's
-    routing — without re-typing strings.
+    name, tags, and examples. Here a skill is a registry record whose identity
+    is a governed FQSN (not a flat string), so the SAME skill definition can be
+    referenced by an agent's card, by a WorkspaceState.skill_id request, and by
+    the orchestrator's routing — without re-typing strings.
     """
 
-    fqsn: str = Field(..., description="Fully Qualified Skill Name, e.g. 'policy.insurance_coverage'.")
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    fqsn: FQSN = Field(..., description="The governed skill identity (Fully Qualified Skills Name).")
     name: str
     description: str
     tags: list[str] = Field(default_factory=list)
     examples: list[str] = Field(default_factory=list)
 
+    @field_validator("fqsn", mode="before")
+    @classmethod
+    def _coerce_fqsn(cls, v: object) -> FQSN:
+        """Accept a dotted display string in registry literals; store an FQSN."""
+        if isinstance(v, FQSN):
+            return v
+        if isinstance(v, str):
+            return FQSN.parse(v)
+        raise TypeError("fqsn must be an FQSN or a dotted string")
+
     def to_agent_skill(self) -> Any:
         """Materialize this registry entry as an A2A AgentSkill."""
         from a2a.types import AgentSkill
 
-        # The short id is the segment after the last dot of the FQSN.
-        short_id = self.fqsn.rsplit(".", 1)[-1]
+        # The short id is the last segment of the FQSN identity.
+        short_id = self.fqsn.segments[-1]
         return AgentSkill(
             id=short_id,
             name=self.name,
