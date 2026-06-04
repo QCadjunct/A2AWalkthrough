@@ -45,8 +45,8 @@ class VendorModel(Enum):
     """
 
     # (owning Vendor member, bare model name)
-    GEMINI_FLASH_LITE = (Vendor.GOOGLE, "gemini-3.1-flash-lite-preview")
-    GEMINI_PRO = (Vendor.GOOGLE, "gemini-3.1-pro-preview")
+    GEMINI_FLASH_LITE = (Vendor.GOOGLE, "gemini-2.5-flash-lite")
+    GEMINI_PRO = (Vendor.GOOGLE, "gemini-2.5-pro")
     GEMINI_FLASH_2_5 = (Vendor.GOOGLE, "gemini-2.5-flash")
     CLAUDE_OPUS = (Vendor.ANTHROPIC, "claude-opus-4-8")
     CLAUDE_SONNET = (Vendor.ANTHROPIC, "claude-sonnet-4-6")
